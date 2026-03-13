@@ -23,7 +23,13 @@ else:
 engine = create_engine(DATABASE_URL)
 
 from app.models import Base
-Base.metadata.drop_all(bind=engine)
+from sqlalchemy import text
+
+# Drop all tables with CASCADE to handle foreign key dependencies from old schemas
+with engine.connect() as conn:
+    conn.execute(text("DROP TABLE IF EXISTS posts, blogs, users CASCADE"))
+    conn.commit()
+
 Base.metadata.create_all(bind=engine)
 print("Tables created")
 
